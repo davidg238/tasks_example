@@ -1,0 +1,14 @@
+# filename: main.yaml
+
+name: main
+entrypoint: main.toit
+
+# declare the cloud topics this app subscribes to
+pubsub:
+  subscriptions: 
+    - "cloud:some_text"    
+
+# declare what starts the app
+triggers:
+    on_install: true
+
