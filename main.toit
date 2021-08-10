@@ -11,18 +11,18 @@ import spi
 
 import monitor show *
 
-map := Map
-
 text_topic ::= "cloud:some_text"
-ui_channel := Channel 1
+input_channel := Channel 1
 update_channel := Channel 1
+event_channel := Channel 10
 
 display := TFT_factory.adafruit_128x128
 uiManager := UIManager
+                --model = Map
                 --display = display
-                --model = map
-                --events = ui_channel
+                --inputs = input_channel
                 --updates = update_channel
+                --events = event_channel
 
 main:
 
@@ -38,9 +38,10 @@ jog_task:
           --up     = 26
           --down   = 12
           --select = 33
-  jog.eventTo ui_channel  // there is a loop here
+  jog.eventTo input_channel // there is a switch scan loop here
 
 cloud_subscriptions:
+  // Send messages from the CLI with:  toit pubsub write cloud:some_text "asdf" -- 01234
   print "start task, for cloud subscriptions"
   pubsub.subscribe text_topic --blocking=true: | msg/pubsub.Message |
     update_channel.send msg.payload

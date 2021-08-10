@@ -7,7 +7,7 @@ import monitor show *
 // For a five way switch.
 // One event is generated per switch press (not a stream of events, while the button is pressed)
 // Only one switch can be pressed at a time.
-// https://www.eejournal.com/article/ultimate-guide-to-switch-debounce-part-4/, use --ms=20 debounce
+// https://www.eejournal.com/article/ultimate-guide-to-switch-debounce-part-4/, use --ms=20 min debounce
 
 class Jog5WaySwitch:
 
@@ -38,11 +38,11 @@ class Jog5WaySwitch:
         if 0 == down_.get:   dcount++ else: dcount = 0
         if 0 == select_.get: scount++ else: scount = 0
 
-        if 2 == lcount: aChannel.send 10
-        if 2 == rcount: aChannel.send 11
-        if 2 == ucount: aChannel.send 12
-        if 2 == dcount: aChannel.send 13
-        if 2 == scount: aChannel.send 14
+        if 2 == lcount: aChannel.send #[10]  // only generate an event when the switch has been actuated, after 40ms
+        if 2 == rcount: aChannel.send #[11]
+        if 2 == ucount: aChannel.send #[12]
+        if 2 == dcount: aChannel.send #[13]
+        if 2 == scount: aChannel.send #[14]
 
         sleep --ms=20
 

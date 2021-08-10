@@ -12,8 +12,13 @@ class UIManager:
   display_/TrueColorPixelDisplay
   map_/Map
 
-  events_/Channel
+  inputs_/Channel
   updates_/Channel
+  events_/Channel
+
+  duration_10ms ::= Duration --ms=10
+
+  input_ := null
   event_ := null
   update_/ByteArray := ByteArray 0
   txt/string := ""
@@ -21,10 +26,12 @@ class UIManager:
   sans_ := Font [sans_14.ASCII]
   sans_context_ := null
 
-  constructor --display/TrueColorPixelDisplay --model/Map --events/Channel --updates/Channel:
 
-    display_ = display
+  constructor --model/Map --display/TrueColorPixelDisplay --inputs/Channel --updates/Channel --events/Channel:
+
     map_ = model
+    display_ = display
+    inputs_ = inputs
     events_ = events
     updates_ = updates
   
@@ -35,8 +42,9 @@ class UIManager:
 
     showTxt "hello world"
     while true:
-        dispatchEvents
-        dispatchUpdates
+      dispatchInputs
+      dispatchEvents
+      dispatchUpdates
 
   showTxt text/string -> none:
     display_.remove_all
@@ -47,15 +55,23 @@ class UIManager:
       display_.remove_all
       display_.draw
 
-  dispatchEvents -> none:
+  dispatchInputs -> none:
     // for now, if you receive any 5way switch action, just display switch event code
-    print ".. in dispatchEvents"
-    event_ = events_.receive // assume this yields if nothing on the channel?
-    // print event_
-    showTxt event_.stringify
+    catch:
+      with_timeout duration_10ms:
+        input_ = inputs_.receive
+        showTxt input_.stringify
+
+  dispatchEvents -> none:
+    catch:
+      with_timeout duration_10ms:
+        event_ = events_.receive
+        showTxt txt
 
   dispatchUpdates -> none:
-    print ".. in dispatchUpdates"
-    update_ = updates_.receive
-    txt = update_.to_string_non_throwing 0 (update_.size + 1)
-    showTxt txt
+    catch:
+      with_timeout duration_10ms:
+        update_ = updates_.receive
+        txt = update_.to_string_non_throwing 0 (update_.size + 1) // why is this the right "to" value ?
+//        txt = update_.to_string 0 update_.size // ok, since "to" excluded ?
+        showTxt txt
